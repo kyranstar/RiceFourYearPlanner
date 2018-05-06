@@ -2,6 +2,7 @@
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 from urllib.error import URLError
+from http.client import RemoteDisconnected
 import csv
 import argparse
 
@@ -36,13 +37,8 @@ def was_class_offered(keywords, term, year):
         year: The year to look at.
     """
     url = create_url(keywords, term, year)
-    print(url)
     # download html
-    try:
-        html = urlopen(url).read().decode('utf-8')
-    except URLError:
-        print("Exception looking up class %s. Url tried was: %s" % (keywords, url))
-        return False
+    html = urlopen(url).read().decode('utf-8')
     # parse html
     soup = BeautifulSoup(html, "lxml")
     tab = soup.find("table", {"class": "table table-condensed"})
@@ -64,9 +60,26 @@ def class_offerings(keywords, years):
     
     for term in ["fall", "spring", "summer"]:
         for year in years:
-            if was_class_offered(keywords, term, year):
-                counts[term] += 1
+            # Try this a few times in case of a network error
+            num_tries = 5
+            for i in range(num_tries):
+                try:
+                    if was_class_offered(keywords, term, year):
+                        counts[term] += 1
+                    break
+                except (URLError, RemoteDisconnected):
+                    print("Try %d: Exception looking up class %s" % (i, keywords))
+                if i == num_tries-1:
+                    return {"fall":-1, "spring":-1, "summer":-1}
+                
     return counts
+
+def write_tsv(filename, results_dict):
+    with open(filename, 'w') as tsvfile:
+            writer = csv.writer(tsvfile, delimiter='\t')
+            writer.writerow(["Class name", "Fall", "Spring", "Summer"])
+            for classname, offerings in results_dict.items():
+                writer.writerow([classname, offerings["fall"], offerings["spring"], offerings["summer"]])
 
 def main():
     """
@@ -77,7 +90,9 @@ def main():
     Command Line Arguments:
         - Name of text file containing class names on each line.
         - Start year in year range. If not given, defaults to 2012.
-        - End year in year range. If not given, defaults to 2018.
+        - End year in year range. If not given, defaults to 2018. If outside 
+            the range of available years on the website, it will give weird 
+            results.
         - Optional file name, which the program will write a tab seperated 
             value format of the data to.
     Examples:
@@ -107,21 +122,20 @@ def main():
         
     # Run the program
     results = {}
-    for classname in content:
+    for idx, classname in enumerate(content):
         offerings = class_offerings(classname, yearrange)
         print("%s: Fall: %d, Spring: %d, Summer: %d" % (classname, 
                                                         offerings["fall"], 
                                                         offerings["spring"], 
                                                         offerings["summer"]))
         results[classname] = offerings
+        # Save our results every n classes
+        if args.tsvfile != None and idx % 5 == 0:
+            write_tsv(args.tsvfile, results)
         
     # Write to TSV file if specified
     if args.tsvfile != None:
-        with open(args.tsvfile, 'w') as tsvfile:
-            writer = csv.writer(tsvfile, delimiter='\t')
-            writer.writerow(["Class name", "Fall", "Spring", "Summer"])
-            for classname, offerings in results.items():
-                writer.writerow([classname, offerings["fall"], offerings["spring"], offerings["summer"]])
+        write_tsv(args.tsvfile, results)
 
 if __name__ == "__main__":
     main()
