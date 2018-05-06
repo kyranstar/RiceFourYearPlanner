@@ -1,10 +1,12 @@
 # Written by Kyran Adams, 05/06/2018
-from bs4 import BeautifulSoup
-from urllib.request import urlopen
-from urllib.error import URLError
-from http.client import RemoteDisconnected
-import csv
 import argparse
+from bs4 import BeautifulSoup
+import csv
+import datetime
+from http.client import RemoteDisconnected
+import time
+from urllib.error import URLError
+from urllib.request import urlopen
 
 def create_url(keywords, term, year):
     """
@@ -76,7 +78,7 @@ def class_offerings(keywords, years):
 
 def write_tsv(filename, results_dict):
     with open(filename, 'w') as tsvfile:
-            writer = csv.writer(tsvfile, delimiter='\t')
+            writer = csv.writer(tsvfile, delimiter='\t',lineterminator='\n')
             writer.writerow(["Class name", "Fall", "Spring", "Summer"])
             for classname, offerings in results_dict.items():
                 writer.writerow([classname, offerings["fall"], offerings["spring"], offerings["summer"]])
@@ -122,6 +124,7 @@ def main():
         
     # Run the program
     results = {}
+    timestart = time.time()
     for idx, classname in enumerate(content):
         offerings = class_offerings(classname, yearrange)
         print("%s: Fall: %d, Spring: %d, Summer: %d" % (classname, 
@@ -131,6 +134,9 @@ def main():
         results[classname] = offerings
         # Save our results every n classes
         if args.tsvfile != None and idx % 5 == 0:
+            time_elapsed = time.time() - timestart
+            seconds_left = int(time_elapsed*(float(len(content))/(idx+1)) - time_elapsed)
+            print("Completed %d/%d. Expected time until completion: %s" % (idx+1, len(content),str(datetime.timedelta(seconds=seconds_left))))
             write_tsv(args.tsvfile, results)
         
     # Write to TSV file if specified
