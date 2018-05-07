@@ -70,7 +70,7 @@ def class_offerings(keywords, years):
                         counts[term] += 1
                     break
                 except (URLError, RemoteDisconnected):
-                    print("Try %d: Exception looking up class %s" % (i, keywords))
+                    print("Attempt %d/%d: Exception looking up class %s" % (i+1, num_tries, keywords))
                 if i == num_tries-1:
                     return {"fall":-1, "spring":-1, "summer":-1}
                 
