@@ -1,0 +1,4 @@
+Class name	Fall	Spring	Summer
+MDHM 201	1	0	0
+MDHM 402	1	0	0
+MDHM 403	0	0	0

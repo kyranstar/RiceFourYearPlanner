@@ -1,0 +1,5 @@
+Class name	Fall	Spring	Summer
+CLIC 007	0	1	0
+CLIC 369	1	0	0
+CLIC 385	0	1	0
+CLIC 399	0	0	1

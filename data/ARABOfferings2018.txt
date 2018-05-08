@@ -1,0 +1,8 @@
+Class name	Fall	Spring	Summer
+ARAB 141	4	0	1
+ARAB 142	0	2	1
+ARAB 222	0	0	0
+ARAB 263	1	0	1
+ARAB 264	0	0	0
+ARAB 301	4	0	0
+ARAB 302	0	3	0

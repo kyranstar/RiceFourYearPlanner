@@ -2,11 +2,11 @@
 import argparse
 from bs4 import BeautifulSoup
 import csv
-import datetime
-from http.client import RemoteDisconnected
-import time
-from urllib.error import URLError
 from urllib.request import urlopen
+from multiprocessing.pool import ThreadPool
+
+TIMEOUT = 20
+CORES = 16
 
 def create_url(keywords, term, year):
     """
@@ -40,7 +40,7 @@ def was_class_offered(keywords, term, year):
     """
     url = create_url(keywords, term, year)
     # download html
-    html = urlopen(url).read().decode('utf-8')
+    html = urlopen(url, None, TIMEOUT).read().decode('utf-8')
     # parse html
     soup = BeautifulSoup(html, "lxml")
     tab = soup.find("table", {"class": "table table-condensed"})
@@ -69,21 +69,28 @@ def class_offerings(keywords, years):
                     if was_class_offered(keywords, term, year):
                         counts[term] += 1
                     break
-                except (URLError, RemoteDisconnected):
+                # catch everything but keyboard interrupt
+                except KeyboardInterrupt:
+                    raise
+                except:
                     print("Attempt %d/%d: Exception looking up class %s" % (i+1, num_tries, keywords))
                 if i == num_tries-1:
+                    print("FAILED for class %s" % keywords)
                     return {"fall":-1, "spring":-1, "summer":-1}
-                
+    print("%s: Fall: %d, Spring: %d, Summer: %d" % (keywords, 
+                                                        counts["fall"], 
+                                                        counts["spring"], 
+                                                        counts["summer"]))
     return counts
 
 def write_tsv(filename, results_dict):
     with open(filename, 'w') as tsvfile:
             writer = csv.writer(tsvfile, delimiter='\t',lineterminator='\n')
             writer.writerow(["Class name", "Fall", "Spring", "Summer"])
-            for classname, offerings in results_dict.items():
+            for classname, offerings in sorted(results_dict.items()):
                 writer.writerow([classname, offerings["fall"], offerings["spring"], offerings["summer"]])
 
-def main():
+def file_class_offerings(filename, yearstart, yearend, tsvfile):
     """
     Takes a list of classnames, and prints the number of times the class was 
     offered in the range of years. Takes a little bit because networks are 
@@ -105,43 +112,34 @@ def main():
         # Run the program and put output in out.txt
         $ python rice_class_availibility.py classes.txt -yearstart 2014 -yearend 2018 -tsvfile out.txt
     """
-    parser = argparse.ArgumentParser()
-    parser.add_argument("filename", help="The name of the file to read",type=str)
-    parser.add_argument("-yearstart", help="The year to start looking at, defaults to 2012", type=int)
-    parser.add_argument("-yearend", help="The year to end looking at, defaults to 2018", type=int)
-    parser.add_argument("-tsvfile", help="File to output tab seperated value format to", type=str)
-    args = parser.parse_args()
     
-    fname = args.filename
+    fname = "data/" + filename
     # Read class name from each line in file
     with open(fname) as f:
         content = f.readlines()
     # strip and remove empty lines
     content = [x.strip() for x in content if len(x.strip()) > 0]
     yearrange = range(2012,2018+1)
-    if args.yearstart != None and args.yearend != None:
-        yearrange = range(args.yearstart, args.yearend)
+    if yearstart != None and yearend != None:
+        yearrange = range(yearstart, yearend)
         
     # Run the program
+    pool = ThreadPool(CORES)
     results = {}
-    timestart = time.time()
     for idx, classname in enumerate(content):
-        offerings = class_offerings(classname, yearrange)
-        print("%s: Fall: %d, Spring: %d, Summer: %d" % (classname, 
-                                                        offerings["fall"], 
-                                                        offerings["spring"], 
-                                                        offerings["summer"]))
-        results[classname] = offerings
-        # Save our results every n classes
-        if args.tsvfile != None and idx % 5 == 0:
-            time_elapsed = time.time() - timestart
-            seconds_left = int(time_elapsed*(float(len(content))/(idx+1)) - time_elapsed)
-            print("Completed %d/%d. Expected time until completion: %s" % (idx+1, len(content),str(datetime.timedelta(seconds=seconds_left))))
-            write_tsv(args.tsvfile, results)
-        
+        results[classname] = pool.apply_async(class_offerings, args=(classname, yearrange))
+    results = {k: v.get() for (k, v) in results.items()}
+    
     # Write to TSV file if specified
-    if args.tsvfile != None:
-        write_tsv(args.tsvfile, results)
+    if tsvfile != None:
+        print("Writing tsv to data/%s" % tsvfile)
+        write_tsv("data/" + tsvfile, results)
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("filename", help="The name of the file to read in data",type=str)
+    parser.add_argument("-yearstart", help="The year to start looking at, defaults to 2012", type=int)
+    parser.add_argument("-yearend", help="The year to end looking at, defaults to 2018", type=int)
+    parser.add_argument("-tsvfile", help="File to output tab seperated value format to", type=str)
+    args = parser.parse_args()
+    file_class_offerings(args.filename, args.yearstart, args.yearend, args.tsvfile)

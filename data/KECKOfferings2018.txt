@@ -1,0 +1,2 @@
+Class name	Fall	Spring	Summer
+KECK 592	7	7	0

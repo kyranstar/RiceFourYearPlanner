@@ -1,0 +1,2 @@
+Class name	Fall	Spring	Summer
+LPCR 200	7	1	0

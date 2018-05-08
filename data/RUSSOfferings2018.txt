@@ -1,0 +1,7 @@
+Class name	Fall	Spring	Summer
+RUSS 141	4	0	0
+RUSS 142	0	3	0
+RUSS 263	3	0	0
+RUSS 264	0	2	0
+RUSS 301	2	1	0
+RUSS 302	1	0	0

@@ -1,0 +1,2 @@
+Class name	Fall	Spring	Summer
+AMCI 400	1	1	0

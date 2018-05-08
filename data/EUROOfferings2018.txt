@@ -1,0 +1,4 @@
+Class name	Fall	Spring	Summer
+EURO 101	1	0	0
+EURO 102	0	0	0
+EURO 401	0	0	0

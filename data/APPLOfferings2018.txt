@@ -1,0 +1,5 @@
+Class name	Fall	Spring	Summer
+APPL 007	3	2	0
+APPL 490	0	0	2
+APPL 750	0	0	0
+APPL 800	6	5	5

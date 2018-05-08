@@ -1,0 +1,4 @@
+Class name	Fall	Spring	Summer
+MANA 404	7	5	0
+MANA 498	0	7	0
+MANA 499	0	0	0

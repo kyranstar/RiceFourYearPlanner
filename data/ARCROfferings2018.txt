@@ -1,0 +1,5 @@
+Class name	Fall	Spring	Summer
+ARCR 451	0	4	0
+ARCR 478	0	1	0
+ARCR 515	2	0	0
+ARCR 551	0	4	0

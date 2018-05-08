@@ -1,0 +1,7 @@
+Class name	Fall	Spring	Summer
+EMSP 281	5	4	0
+EMSP 282	5	0	0
+EMSP 375	1	4	0
+EMSP 491	5	4	4
+EMSP 492	4	4	4
+EMSP 499	0	2	0

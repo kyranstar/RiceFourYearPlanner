@@ -1,0 +1,4 @@
+Class name	Fall	Spring	Summer
+CMST 201	1	0	0
+CMST 202	0	1	0
+CMST 203	1	0	0
