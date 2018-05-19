@@ -1,5 +1,0 @@
-Class name	Fall	Spring	Summer
-SOPA 200	1	0	0
-SOPA 300	1	0	0
-SOPA 400	1	0	0
-SOPA 401	0	0	0

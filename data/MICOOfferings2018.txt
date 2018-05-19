@@ -1,7 +1,0 @@
-Class name	Fall	Spring	Summer
-MICO 601	0	2	0
-MICO 602	0	0	2
-MICO 603	0	0	2
-MICO 604	1	0	0
-MICO 605	3	1	0
-MICO 606	0	1	0

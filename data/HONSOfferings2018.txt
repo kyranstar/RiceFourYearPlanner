@@ -1,3 +1,0 @@
-Class name	Fall	Spring	Summer
-HONS 470	7	0	0
-HONS 471	0	7	0

@@ -1,7 +1,0 @@
-Class name	Fall	Spring	Summer
-INDE 501	0	0	0
-INDE 509	0	0	0
-INDE 545	0	0	0
-INDE 546	0	0	0
-INDE 590	0	0	0
-INDE 597	0	0	0

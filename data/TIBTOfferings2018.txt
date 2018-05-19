@@ -1,4 +1,0 @@
-Class name	Fall	Spring	Summer
-TIBT 233	2	1	0
-TIBT 234	0	1	0
-TIBT 332	4	5	0

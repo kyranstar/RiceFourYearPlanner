@@ -1,8 +1,0 @@
-Class name	Fall	Spring	Summer
-HEBR 125	1	0	0
-HEBR 126	0	1	0
-HEBR 128	0	0	0
-HEBR 141	0	0	0
-HEBR 142	0	0	0
-HEBR 263	1	0	0
-HEBR 264	0	0	0
