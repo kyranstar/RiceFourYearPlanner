@@ -81,22 +81,25 @@ class Window(Frame):
                 label.grid(row=num_classes*y, column=j+2)
 
         self.sva = {}
+        self.entries = {}
         # Fill in the rows
         for y in range(years):
-            for i in range(num_classes):
-                rowlabel = Label(self.cellframe, text=str(i + 1))
-                rowlabel.grid(row=2+i + y*num_classes, column=1)
-                for j in range(3):
-                    ind = "%d:%d:%d" % (y, j, i)
+            for j in range(3):
+                for i in range(num_classes):
+                    rowlabel = Label(self.cellframe, text=str(i + 1))
+                    rowlabel.grid(row=2+i + y*num_classes, column=1)
+                    sem = ['fall', 'spring', 'summer'][j]
+                    ind = (y, sem, i)
                     self.sva[ind] = StringVar()
                     self.sva[ind].trace('w', 
                             lambda name, index, mode, 
                             var=self.sva[ind], 
                             y=y, 
-                            semester=['fall', 'spring', 'summer'][j], 
+                            semester=sem, 
                             i=i:
                               self.sync_validate(var.get(), y, semester, i))
                     field = Entry(self.cellframe, textvariable=self.sva[ind])
+                    self.entries[ind] = field
                     field.grid(row=2+i + y*num_classes, column=2+j)
 
 
@@ -114,17 +117,21 @@ class Window(Frame):
         self.validate(year, semester, class_ind)
         
     def validate(self, year, semester, class_ind):
-        class_tup = self.plan_model.get_class(year, semester, class_ind)
+        class_name = self.plan_model.get_class(year, semester, class_ind)
+        ind = (year, semester, class_ind)
+        entry = self.entries[ind]
+        entry.config({"background": 'white'})
         # Invalid class
-        if class_tup == None:
+        if pd.isnull(class_name):
             return
-        class_name = "%s %s" % class_tup
-        
-        if not self.class_data.class_exists(class_tup):
+        if not self.class_data.class_exists(class_name):   
+            entry.config({"background": 'red'})
             print("Class %s does not exist" % class_name)
             return
-        if not self.class_data.offered_last_semester(class_tup, semester):
+        elif not self.class_data.offered_last_semester(class_name, semester):
+            entry.config({"background": 'yellow'})
             print("Class %s was not offered last %s" % (class_name, semester))
+        self.update()
     
     def save(self):
         if self.save_file == None:
@@ -140,10 +147,16 @@ class Window(Frame):
         self.save()
         
     def open_file(self):
-        f = filedialog.asksopenfilename(defaultextension=".pln")
+        f = filedialog.askopenfilename(defaultextension=".pln")
         if f is None:
             return
         self.plan_model.open_file(f)
+        for (year, semester, row), sv in self.sva.items():
+            class_name = self.plan_model.get_class(year, semester, row)
+            if pd.isnull(class_name):
+                sv.set("")
+            else:
+                sv.set(class_name)
     
     def update_class_data(self):
         self.class_data.update_data()

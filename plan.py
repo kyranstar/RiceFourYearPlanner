@@ -9,28 +9,29 @@ import numpy as np
 import os
 import pandas as pd
 import run_whole_dir
-import pathlib
-
 class PlanModel:
     
     def __init__(self, max_classes_per_sem=8, years=4):
         
         self.plan = pd.DataFrame(index=range(max_classes_per_sem),
                                  columns=pd.MultiIndex.from_product([
-                                         range(years), 
+                                         list(map(lambda x: str(x), range(years))), 
                                          ["fall", "spring", "summer"]]))
         
     def set_class(self, class_name, year, semester, row):
-        self.plan[year, semester][row] = self.__class_from_name(class_name)
+        self.plan.loc[row, (str(year), semester)] = self.__class_from_name(class_name)
         
     def get_class(self, year, semester, row):
-        return self.plan[year, semester][row]
+        return self.plan[str(year), semester][row]
     
     def save(self, save_file):
-        self.plan.to_csv(save_file, sep='\t')
+        #Add class index at front
+        self.plan.insert(0, 'Class index', self.plan.index)
+        self.plan.to_csv(save_file, sep='\t', index=False)
         
     def open_file(self, save_file):
-        self.plan = pd.read_table(save_file)        
+        self.plan =  pd.read_table(save_file,sep='\t',header=[0,1]).drop(('Class index','Unnamed: 0_level_1'), axis=1)
+
     def __class_from_name(self, name):
         """
         Gives a (department, number) given a classname string.
@@ -39,10 +40,10 @@ class PlanModel:
         parts = name.split(' ')
         num_words = len(parts)
         if num_words != 2 or len(parts[0]) != 4 or len(parts[1]) != 3:
-            return None
+            return np.nan
         else:
             parts[0] = parts[0].upper()
-            return tuple(parts)
+            return "%s %s" % tuple(parts)
 
 class ClassData:
     
@@ -63,14 +64,12 @@ class ClassData:
             df.set_index('Class name', inplace=True)
             self.class_data[subject_code] = df
     
-    def class_exists(self, class_pair):
-        class_name = "%s %s" % class_pair
-        df = self.class_data[class_pair[0]]
+    def class_exists(self, class_name):
+        df = self.class_data[class_name.split(' ')[0]]
         return class_name in df.index
     
-    def offered_last_semester(self, class_pair, semester):
-        class_name = "%s %s" % class_pair
-        df = self.class_data[class_pair[0]]
+    def offered_last_semester(self, class_name, semester):
+        df = self.class_data[class_name.split(' ')[0]]
         
         last_sem_col = "%s:%s" % ((df.columns[-1])[:4], semester)
         if not last_sem_col in df.columns:
