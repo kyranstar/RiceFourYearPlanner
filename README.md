@@ -1,18 +1,21 @@
 # RiceCourseOfferings
 
-A tool to crawl the Rice course listing and show historically which semesters classes had been offered. 
-This program runs on a text file of course names, and outputs the number of times each of them have been offered in a certain year range for each semester.
+A four-year planning tool for Rice University that tells you when courses are offered.
+
+The program crawls the Rice course listing and, based on which semesters classes have been offered historically, highlights your four-year plan in red. 
+
+The program is still rough. Some things to add:
+* Credit hours
+* GUI for updating
+* Cleaner interface
+* Grabbing most recent syllabus/class description
+* Check time conflicts
+* More descriptive errors than colors
 
 ## Data
 
-All data is currently run on the 2012-2018 time period. It is located in the data directory. XXXXList2018.txt files have a list of courses offered in 2018 for that subject, and XXXXOfferings2018.txt are the results of running the program, the number of times each class in that subject has been offered from 2012-2018. 
-To run on new data, copy the names of all classes into a text file, and run seperate.py on them. Move these files into the data directory, and then run run_whole_dir.py on them.
-
-## Code Organization
-
-* rice_class_availability.py: Takes a file, containing a list of class names, and creates a file that contains how many times they were offered.
-* run_whole_dir.py: Runs rice_class_availability.py on every file that contains the substring "List" in the data directory.
-* seperate.py: Takes a master file and seperates them into files with only one subject each.
+All data is currently run on the 2012-2018 time period. It is located in the data directory. XXXXList2018.txt files have a list of courses offered in 2018 for that subject, and XXXXOfferings.txt are the results of running the program, the number of times each class in that subject has been offered from 2012-2018. 
+The program should automatically update the data when File->Update Class Data is clicked.
 
 ### Installing
 
