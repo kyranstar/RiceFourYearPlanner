@@ -1,4 +1,4 @@
-# RiceCourseOfferings
+# RiceFourYearPlanner
 
 A four-year planning tool for Rice University that tells you when courses are offered.
 
@@ -11,6 +11,7 @@ The program is still rough. Some things to add:
 * Grabbing most recent syllabus/class description
 * Check time conflicts
 * More descriptive errors than colors
+* Automatically download new courses
 
 ## Data
 
@@ -23,7 +24,7 @@ Steps:
 * [Install python 3](https://www.python.org/downloads/)
 * [Install beautifulsoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/#installing-beautiful-soup)
 * [Clone the repository](https://help.github.com/articles/cloning-a-repository/)
-* Run! Type `python rice_class_availability.py -h` for instructions.
+* Run: `python plan_gui.py`
 
 ## Contact
 
